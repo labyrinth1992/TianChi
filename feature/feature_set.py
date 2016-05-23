@@ -26,10 +26,33 @@ class SQLJoinFeatureSet(SQLFeatureSet):
         SQLFeatureSet.__init__(name, features, key)
         self.sub_feature_sets = sub_feature_sets
 
-    def make(self, tables):
+    def make(self, params):
         input_tables = []
         for fs in self.sub_feature_sets:
-            input_tables.append(fs.make(tables))
+            input_tables.append(fs.make(params))
+
+        columns = set()
+        for table in input_tables:
+            cols = SQLClient.execute('select column_names from information_schema.columns '
+                                     'where table_name="%s"' % table)
+            for col in cols:
+                if col == self.key:
+                    continue
+                elif col in columns:
+                    raise Exception("duplicate column '%s'" % col)
+                else:
+                    columns.add(col)
+        output_table = "fs_" + self.name
+        sql = "CREATE TABLE %s AS SELECT " % output_table
+        sql += input_tables[0] + "." + self.key + ","
+        sql += ",".join(columns)
+        sql += " FROM " + input_tables[0]
+        for table in input_tables[1:]:
+            sql += " INNER JOIN %s ON %s.%s=%s.%s " % (table, table, self.key, input_tables[0], self.key)
+        sql += ";"
+        SQLClient.execute(sql)
+        return output_table
+
 
 
 
