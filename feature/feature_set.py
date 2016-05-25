@@ -1,14 +1,19 @@
+from io.sql import SQLClient
+
+
 class FeatureSet:
     def features(self):
         return []
 
     def __init__(self, name, features):
         self.name = name
+        if isinstance(features, str):
+            features = [features]
         self.features = features
 
 
 class SQLFeatureSet(FeatureSet):
-    def __int__(self, name, features, key):
+    def __init__(self, name, features, key):
         FeatureSet.__init__(self, name, features)
 
 
@@ -28,8 +33,14 @@ class SQLJoinFeatureSet(SQLFeatureSet):
 
     def make(self, params):
         input_tables = []
-        for fs in self.sub_feature_sets:
-            input_tables.append(fs.make(params))
+
+        def dfs(sub_feature_sets):
+            for fs in sub_feature_sets:
+                if isinstance(fs, SQLJoinFeatureSet):
+                    dfs(fs)
+                else:
+                    input_tables.append(fs.make(params))
+        dfs(self.sub_feature_sets)
 
         columns = set()
         for table in input_tables:

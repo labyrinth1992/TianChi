@@ -8,16 +8,14 @@ class FsSongLastDaysBasicStatistics(SQLFeatureSet):
     def features(self):
         return ["play", "download", "collect"]
 
-    def __init__(self, params):
-        SQLFeatureSet.__init__(self, "song_last_%s_days_basic_statistics" % params["days"],
+    def __init__(self, days):
+        SQLFeatureSet.__init__(self, "fs_song_last_%s_days_basic_statistics" % days,
                                self.features(), "song_id")
-        self.params = params
+        self.days = days
 
     def make(self, params):
-        output_name = "fs_" + self.name
-        last_day = str(params["last_day"] - timedelta(self.params["days"])).replace("-", "")
+        last_day = str(params["last_day"] - timedelta(self.days)).replace("-", "")
         sql = """
-        CREATE TABLE %s AS
         SELECT song_id,
                count(if(action=0, 1, 0)) AS last_%s_day_play,
                count(if(action=1, 1, 0)) AS last_%s_day_download,
@@ -25,6 +23,6 @@ class FsSongLastDaysBasicStatistics(SQLFeatureSet):
         FROM %s
         GROUP BY song_id
         WHERE ds > %s
-       """ % (output_name, self.params["days"], self.params["days"], self.params["days"], params["src"], last_day)
-        SQLClient.execute(sql)
-        return output_name
+       """ % (self.days, self.days, self.days, params["table"], last_day)
+        SQLClient.create_table(self.name, sql)
+        return self.name

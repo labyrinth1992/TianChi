@@ -8,13 +8,13 @@ class Model:
     def save(self, path):
         pass
 
-    def make_train_data(self):
+    def make_train_data(self, params):
         pass
 
     def train(self):
         pass
 
-    def make_predict_data(self):
+    def make_predict_data(self, params):
         pass
 
     def predict(self):
