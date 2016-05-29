@@ -1,6 +1,6 @@
 import numpy
 from models.model import Model
-from io.sql import SQLClient
+from utils.sql import SQLClient
 from sklearn.ensemble import RandomForestRegressor
 
 class SimplePerSongModel(Model):

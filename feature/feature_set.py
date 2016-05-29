@@ -1,4 +1,4 @@
-from io.sql import SQLClient
+from utils.sql import SQLClient
 
 
 class FeatureSet:

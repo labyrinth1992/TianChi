@@ -1,6 +1,6 @@
 from feature.feature_set import SQLFeatureSet
 from datetime import timedelta
-from io.sql import SQLClient
+from utils.sql import SQLClient
 
 
 class FsSongFutureDaysPlay(SQLFeatureSet):

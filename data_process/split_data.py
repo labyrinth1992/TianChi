@@ -1,6 +1,6 @@
 import sys
 sys.path.insert(0, "..")
-from io.sql import SQLClient
+from utils.sql import SQLClient
 
 SQLClient.set_mode(True)
 SQLClient.create_table('user_actions_global_train',
