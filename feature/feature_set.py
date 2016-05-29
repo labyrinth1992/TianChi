@@ -43,7 +43,7 @@ class SQLJoinFeatureSet(SQLFeatureSet):
                 if fs.is_target_feature() and params.get("unknown_target", False):
                     continue
                 elif isinstance(fs, SQLJoinFeatureSet):
-                    dfs(fs)
+                    dfs(fs.sub_feature_sets)
                 else:
                     input_tables.append(fs.make(params))
         dfs(self.sub_feature_sets)
