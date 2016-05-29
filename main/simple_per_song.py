@@ -9,21 +9,22 @@ from datetime import datetime, timedelta
 
 # parameters
 for_online = True
-
 if for_online:
-    last_day = datetime(2015, 8, 30)
     train_action_table = "user_actions_global_train"
     target_action_table = "user_actions_global_target"
     test_action_table = "user_actions"
     test_target_table = None
     predict_table_prefix = "simple_per_song_global_predict"
-else:
     last_day = datetime(2015, 6, 30)
+    train_last_day = datetime(2015, 6, 30)
+else:
     train_action_table = "user_actions_local_train"
     target_action_table = "user_actions_local_target"
     test_action_table = "user_actions_local_test"
     test_target_table = "artist_play_local"
     predict_table_prefix = "simple_per_song_local_predict"
+    last_day = datetime(2015, 8, 30)
+    train_last_day = datetime(2015, 6, 30)
 
 
 # make feature sets
@@ -43,7 +44,7 @@ models = {model_1_day, model_7_day, model_60_day}
 
 
 # model training
-params = {"last_day": last_day, "songs": "songs",
+params = {"last_day": train_last_day, "songs": "songs",
           "table": train_action_table, "target_table": target_action_table}
 for model in models:
     model.make_train_data(params)
@@ -51,7 +52,7 @@ for model in models:
 
 
 # model predicting
-params = {"last_day": last_day, "songs": "songs",
+params = {"last_day": last_day, "songs": "songs", "unknown_target": True,
           "aim": for_online, "table": test_action_table}
 for model in models:
     model.make_predict_data(params)

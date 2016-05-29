@@ -24,3 +24,6 @@ class FsSongPersonLastDaysBasicStatistics(SQLFeatureSet):
        """ % (self.days, params["table"], last_day)
         SQLClient.create_table(self.name, sql)
         return self.name
+
+    def is_target_feature(self):
+        return True
