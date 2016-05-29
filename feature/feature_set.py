@@ -9,7 +9,7 @@ class FeatureSet:
         self.name = name
         if isinstance(features, str):
             features = [features]
-        self.features = features
+        self.sub_features = features
 
     def is_target_feature(self):
         return False
