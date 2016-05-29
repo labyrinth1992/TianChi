@@ -1,12 +1,12 @@
-from feature.feature_set import SQLFeatureSet
+from feature.feature_set import SQLJoinFeatureSet
 from feature.per_song.fs_last_days import FsSongLastDaysBasicStatistics
 from feature.per_song.fs_person_days import FsSongPersonLastDaysBasicStatistics
 
 
-class FsSimplePerSongShortRange(SQLFeatureSet):
+class FsSimplePerSongShortRange(SQLJoinFeatureSet):
 
     def __init__(self):
-        SQLFeatureSet.__init__(
+        SQLJoinFeatureSet.__init__(
             self,
             "fs_simple_per_song_short_range",
             [
@@ -14,15 +14,14 @@ class FsSimplePerSongShortRange(SQLFeatureSet):
                 FsSongLastDaysBasicStatistics(7),
                 FsSongPersonLastDaysBasicStatistics(3),
                 FsSongPersonLastDaysBasicStatistics(7),
-            ],
-            "song_id"
+            ]
         )
 
 
-class FsSimplePerSongLongRange(SQLFeatureSet):
+class FsSimplePerSongLongRange(SQLJoinFeatureSet):
 
     def __init__(self):
-        SQLFeatureSet.__init__(
+        SQLJoinFeatureSet.__init__(
             self,
             "fs_simple_per_song_long_range",
             [
@@ -34,6 +33,5 @@ class FsSimplePerSongLongRange(SQLFeatureSet):
                 FsSongPersonLastDaysBasicStatistics(30),
                 FsSongPersonLastDaysBasicStatistics(60),
                 FsSongPersonLastDaysBasicStatistics(120),
-            ],
-            "song_id"
+            ]
         )
