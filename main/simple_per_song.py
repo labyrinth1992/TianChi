@@ -1,8 +1,10 @@
+import sys
+sys.path.insert(0, "..")
 from feature.per_song.fs_basic import FsSongBasicStatistics
 from feature.per_song.fs_future_days import FsSongFutureDaysPlay
 from feature.per_song.fs_combine import FsSimplePerSongLongRange, FsSimplePerSongShortRange
 from feature.feature_set import SQLJoinFeatureSet
-from model.simple_per_song_model import SimplePerSongModel
+from models.simple_per_song_model import SimplePerSongModel
 from io.sql import SQLClient
 from datetime import datetime, timedelta
 
