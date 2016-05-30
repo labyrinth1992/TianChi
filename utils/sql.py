@@ -45,12 +45,15 @@ class SQLClient:
         SQLClient.create_table(target, sql, override)
     
     @staticmethod
-    def create_table(name, sql, override=False):
+    def create_table(name, sql, override=False, index=None):
         if override or override_mode:
             with SQLClient.get_db() as db:
                 db.execute("drop table if exists %s" % name)
         sql = "CREATE TABLE IF NOT EXISTS %s AS \n%s" % (name, sql)
         SQLClient.execute(sql)
+        if index is not None:
+            with SQLClient.get_db() as db:
+                db.execute("alter table %s add primary key(%s)" % (name, index))
 
     @staticmethod
     def execute(sql):
