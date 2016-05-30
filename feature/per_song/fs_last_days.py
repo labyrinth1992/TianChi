@@ -24,5 +24,5 @@ class FsSongLastDaysBasicStatistics(SQLFeatureSet):
         WHERE ds > "%s"  
         GROUP BY song_id 
        """ % (self.days, self.days, self.days, params["table"], last_day)
-        SQLClient.create_table(self.name, sql)
+        SQLClient.create_table(self.name, sql, index=self.key)
         return self.name

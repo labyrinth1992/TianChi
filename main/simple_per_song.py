@@ -18,7 +18,7 @@ if for_online:
     test_action_table = "user_actions"
     test_target_table = None
     predict_table_prefix = "simple_per_song_global_predict"
-    last_day = date(2015, 6, 30)
+    last_day = date(2015, 8, 30)
     train_last_day = date(2015, 6, 30)
 else:
     train_action_table = "user_actions_local_train"
@@ -26,7 +26,7 @@ else:
     test_action_table = "user_actions_local_test"
     test_target_table = "artist_play_local"
     predict_table_prefix = "simple_per_song_local_predict"
-    last_day = date(2015, 8, 30)
+    last_day = date(2015, 6, 30)
     train_last_day = date(2015, 6, 30)
 
 

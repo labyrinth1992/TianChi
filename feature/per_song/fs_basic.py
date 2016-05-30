@@ -17,5 +17,5 @@ class FsSongBasicStatistics(SQLFeatureSet):
             datediff("%s", publish_time) as publish_time
         FROM %s
        """ % (params["last_day"], params["songs"])
-        SQLClient.create_table(self.name, sql)
+        SQLClient.create_table(self.name, sql, index=self.key)
         return self.name

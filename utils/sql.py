@@ -42,7 +42,7 @@ class SQLClient:
         sql += "FROM " + tables[0]
         for table in tables[1:]:
             sql += " INNER JOIN %s ON %s.%s=%s.%s " % (table, table, key, tables[0], key)
-        SQLClient.create_table(target, sql, override)
+        SQLClient.create_table(target, sql, override, index=key)
     
     @staticmethod
     def create_table(name, sql, override=False, index=None):
@@ -53,13 +53,13 @@ class SQLClient:
         SQLClient.execute(sql)
         if index is not None:
             with SQLClient.get_db() as db:
-                db.execute("alter table %s add primary key(%s)" % (name, index))
+                db.execute("alter table %s add index(%s)" % (name, index))
 
     @staticmethod
     def execute(sql):
         print sql
         with SQLClient.get_db() as db:
             db.execute(sql)
-            return db.fetchall()
+            results = db.fetchall()
         print
-        print
+        return results

@@ -22,7 +22,7 @@ class FsSongPersonLastDaysBasicStatistics(SQLFeatureSet):
         WHERE ds > "%s" and action_type = 1 
         GROUP BY song_id
        """ % (self.days, params["table"], last_day)
-        SQLClient.create_table(self.name, sql)
+        SQLClient.create_table(self.name, sql, index=self.key)
         return self.name
 
     def is_target_feature(self):
