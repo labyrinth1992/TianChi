@@ -17,12 +17,12 @@ class FsSongLastDaysBasicStatistics(SQLFeatureSet):
         last_day = str(params["last_day"] - timedelta(self.days)).replace("-", "")
         sql = """
         SELECT song_id,
-               count(if(action=0, 1, 0)) AS last_%s_day_play,
-               count(if(action=1, 1, 0)) AS last_%s_day_download,
-               count(if(action=2, 1, 0)) AS last_%s_day_collect
+               sum(if(action_type=1, 1, 0)) AS last_%s_day_play,
+               sum(if(action_type=2, 1, 0)) AS last_%s_day_download,
+               sum(if(action_type=3, 1, 0)) AS last_%s_day_collect
         FROM %s
-        GROUP BY song_id
-        WHERE ds > %s
+        WHERE ds > "%s"  
+        GROUP BY song_id 
        """ % (self.days, self.days, self.days, params["table"], last_day)
         SQLClient.create_table(self.name, sql)
         return self.name

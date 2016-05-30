@@ -6,10 +6,11 @@ from feature.per_song.fs_combine import FsSimplePerSongLongRange, FsSimplePerSon
 from feature.feature_set import SQLJoinFeatureSet
 from models.simple_per_song_model import SimplePerSongModel
 from utils.sql import SQLClient
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 
 # parameters
+#SQLClient.set_mode(True)
 for_online = True
 if for_online:
     train_action_table = "user_actions_global_train"
@@ -17,16 +18,16 @@ if for_online:
     test_action_table = "user_actions"
     test_target_table = None
     predict_table_prefix = "simple_per_song_global_predict"
-    last_day = datetime(2015, 6, 30)
-    train_last_day = datetime(2015, 6, 30)
+    last_day = date(2015, 6, 30)
+    train_last_day = date(2015, 6, 30)
 else:
     train_action_table = "user_actions_local_train"
     target_action_table = "user_actions_local_target"
     test_action_table = "user_actions_local_test"
     test_target_table = "artist_play_local"
     predict_table_prefix = "simple_per_song_local_predict"
-    last_day = datetime(2015, 8, 30)
-    train_last_day = datetime(2015, 6, 30)
+    last_day = date(2015, 8, 30)
+    train_last_day = date(2015, 6, 30)
 
 
 # make feature sets

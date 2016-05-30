@@ -18,9 +18,9 @@ class FsSongPersonLastDaysBasicStatistics(SQLFeatureSet):
         sql = """
         SELECT song_id,
                count(distinct user_id) AS last_%s_days_played_person
-        FROM %s
+        FROM %s 
+        WHERE ds > "%s" and action_type = 1 
         GROUP BY song_id
-        WHERE ds > %s and action = 0
        """ % (self.days, params["table"], last_day)
         SQLClient.create_table(self.name, sql)
         return self.name
