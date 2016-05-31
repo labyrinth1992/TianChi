@@ -17,13 +17,11 @@ class SimplePerSongModel(Model):
         self.predict_res = None
 
     def make_train_data(self, params):
-        self.feature_set.make(params)
-        sql = """
-        select * from %s
-        """ % self.feature_set.name
+        sql = "select * from " + self.feature_set.make(params, output_table=self.name + "_train")
         data = SQLClient.execute(sql)
         self.x = [_[1:-1] for _ in data]
         self.y = [_[-1] for _ in data]
+        print self.x, self.y
 
     def train(self):
         self.x = numpy.asarray(self.x)
@@ -31,10 +29,7 @@ class SimplePerSongModel(Model):
         self.clf.fit(self.x, self.y)
 
     def make_predict_data(self, params):
-        self.feature_set.make(params)
-        sql = """
-        select * from %s
-        """ %params["table_target"]
+        sql = "select * from " + self.feature_set.make(params, output_table=self.name + "_predict")
         data = SQLClient.execute(sql)
         self.test_x = [_[1:-1] for _ in data]
         self.test_y = [_[-1] for _ in data]
