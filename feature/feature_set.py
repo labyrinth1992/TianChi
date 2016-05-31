@@ -40,7 +40,6 @@ class SQLJoinFeatureSet(SQLFeatureSet):
 
         def dfs(sub_feature_sets):
             for fs in sub_feature_sets:
-                print params.get("unkonwn_target", False)
                 if fs.is_target_feature() and params.get("unknown_target", False):
                     continue
                 elif isinstance(fs, SQLJoinFeatureSet):

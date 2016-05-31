@@ -34,6 +34,7 @@ class SimplePerSongModel(Model):
         self.test_y = [_[-1] for _ in data]
 
     def predict(self):
-        self.test_x = self.clf.fit_transtorm(test_x)
+        test_x = self.clf.fit_transform(self.test_x)
         self.predict_res = self.clf.predict(test_x)
+        print self.predict_res
 
