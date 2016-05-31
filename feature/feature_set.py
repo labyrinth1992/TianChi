@@ -40,6 +40,7 @@ class SQLJoinFeatureSet(SQLFeatureSet):
 
         def dfs(sub_feature_sets):
             for fs in sub_feature_sets:
+                print params.get("unkonwn_target", False)
                 if fs.is_target_feature() and params.get("unknown_target", False):
                     continue
                 elif isinstance(fs, SQLJoinFeatureSet):
@@ -51,7 +52,7 @@ class SQLJoinFeatureSet(SQLFeatureSet):
         if output_table is None:
             output_table = self.name
         SQLClient.simple_join(output_table, input_tables, self.key)
-        return self.name
+        return output_table
 
 
 

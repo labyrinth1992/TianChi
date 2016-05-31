@@ -20,3 +20,6 @@ class FsSongFutureDaysPlay(SQLFeatureSet):
        """ % (self.days, self.days, params["target_table"],  last_day)
         SQLClient.create_table(self.name, sql, index=self.key)
         return self.name
+
+    def is_target_feature(self):
+        return True
