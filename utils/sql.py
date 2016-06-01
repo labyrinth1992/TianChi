@@ -46,14 +46,28 @@ class SQLClient:
     
     @staticmethod
     def create_table(name, sql, override=False, index=None):
-        if override or override_mode:
-            with SQLClient.get_db() as db:
+        with SQLClient.get_db() as db:
+            exist = db.execute("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_NAME='%s'" % name) > 0
+            if exist and (override or override_mode):
                 db.execute("drop table if exists %s" % name)
-        sql = "CREATE TABLE IF NOT EXISTS %s AS \n%s" % (name, sql)
-        SQLClient.execute(sql)
-        if index is not None:
-            with SQLClient.get_db() as db:
-                db.execute("alter table %s add index(%s)" % (name, index))
+                exist = False
+            if exist:
+                print "table '%s' already exists" % name
+            else:
+                sql = "CREATE TABLE IF NOT EXISTS %s AS \n%s" % (name, sql)
+                print sql
+                db.execute(sql)
+                if index is not None:
+                    db.execute("alter table %s add index(%s)" % (name, index))
+            print
+
+    @staticmethod
+    def insert(name, schema, items):
+        with SQLClient.get_db() as db:
+            cols = ",".join([n + " " + t for n, t in schema])
+            db.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (name, cols))
+            db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (name, ",".join([n for n, _ in schema]), ",".join(["%s" for _ in schema])), 
+                           items)
 
     @staticmethod
     def execute(sql):

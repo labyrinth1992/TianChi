@@ -7,11 +7,13 @@ from feature.feature_set import SQLJoinFeatureSet
 from models.simple_per_song_model import SimplePerSongModel
 from utils.sql import SQLClient
 from datetime import date, timedelta
+from evaluation import evaluate
 
 
 # parameters
 #SQLClient.set_mode(True)
-for_online = True
+stage = 3
+for_online = False
 if for_online:
     train_action_table = "user_actions_global_train"
     target_action_table = "user_actions_global_target"
@@ -47,68 +49,71 @@ models = {model_1_day, model_7_day, model_60_day}
 
 
 # model training
-params = {"last_day": train_last_day, "songs": "songs",
-          "table": train_action_table, "target_table": target_action_table}
-for model in models:
-    model.make_train_data(params)
-    model.train()
+if stage < 1:
+    params = {"last_day": train_last_day, "songs": "songs",
+              "table": train_action_table, "target_table": target_action_table}
+    for model in models:
+        model.make_train_data(params)
+        model.train()
 
 
 # model predicting
-params = {"last_day": last_day, "songs": "songs", "unknown_target": True,
-          "aim": for_online, "table": test_action_table}
-for model in models:
-    model.make_predict_data(params)
-    model.predict()
+if stage < 2:
+    params = {"last_day": last_day, "songs": "songs", 
+              "unknown_target": True, "table": test_action_table}
+    for model in models:
+        model.make_predict_data(params)
+        model.predict()
 
 
 # from song to artist
-SQLClient.create_table(
-    name="tmp_per_model_predict",
-    sql="""
+if stage < 3:
+    SQLClient.create_table(
+        name="tmp_per_model_predict",
+        sql="""
         SELECT artist_id,
-               sum(%s.predict) AS predict_1,
-               sum(%s.predict) AS predict_7,
-               sum(%s.predict) AS predict_60
+               sum(predict_1) AS predict_1,
+               sum(predict_7) AS predict_7,
+               sum(predict_60) AS predict_60
         FROM (
-            SELECT artist_id, songs.song_id, %s.predict, %s.predict, %s.predict
+            SELECT artist_id, songs.song_id, %s.predict as predict_1, %s.predict as predict_7, %s.predict as predict_60 
             FROM songs INNER JOIN
                 %s ON %s.song_id = songs.song_id INNER JOIN
                 %s ON %s.song_id = songs.song_id INNER JOIN
                 %s ON %s.song_id = songs.song_id
-        )
+        ) AS x
         GROUP BY artist_id
-    """ %
+        """ %
         (model_1_day.predict_table_name, model_7_day.predict_table_name, model_60_day.predict_table_name,
-         model_1_day.predict_table_name, model_7_day.predict_table_name, model_60_day.predict_table_name,
          model_1_day.predict_table_name, model_1_day.predict_table_name,
          model_7_day.predict_table_name, model_7_day.predict_table_name,
          model_60_day.predict_table_name, model_60_day.predict_table_name)
-)
+    )
 
 
 # output phase with model averaging
-predicts = SQLClient.execute("SELECT * from tmp_per_model_predict")
-start_date = date(2015, 9, 1)
-results = {}
-for predict in predicts:
-    for days in range(1, 61):
+if stage < 4:
+    predicts = SQLClient.execute("SELECT * from tmp_per_model_predict")
+    results = {}
+    for predict in predicts:
+        for days in range(1, 61):
+            weights = [1.0 / (abs(days - c) + 1) for c in [1, 7, 20]]
+            for i in range(3):
+                weights[i] /= sum(weights)
 
-        weights = [1.0 / abs(days - c + 1) for c in [1, 7, 20]]
-        for i in range(3):
-            weights[i] /= sum(weights)
+            result = int(weights[0] * float(predict[1]) + weights[1] * float(predict[2]) + weights[2] * float(predict[3]))
+            cur_date = last_day + timedelta(days)
+            results[predict[0] + " " + str(cur_date).replace("-", "")] = result
 
-        result = int(weights[0] * predict[1] + weights[1] * predict[2] + weights[2] * predict[3])
-        cur_date = start_date + timedelta(days)
-        results[predict[0] + " " + str(cur_date).replace("-", "")] = result
-
-if for_online:
-    SQLClient.execute("""
-
-    """)
-else:
-    goldens = SQLClient.execute("SELECT * from " + test_target_table)
-    for golden in goldens:
-        golden_play = golden[2]
-        predict_play = results[predict[0] + " " + golden[1]]
-
+    if for_online:
+        pass
+    else:
+        goldens = SQLClient.execute("SELECT * from " + test_target_table)
+        to_eval = {}
+        for artist_id, d, golden in goldens:
+            key = artist_id + " " + d
+            if key not in results:
+                continue
+            to_eval[key] = (float(golden), results[key])
+        to_eval = [(k.split(" ")[0], k.split(" ")[1], v[0], v[1]) for k, v in to_eval.items()]
+        print evaluate(to_eval)

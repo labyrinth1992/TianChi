@@ -15,9 +15,8 @@ class SimplePerSongModel(Model):
         self.x = None
         self.y = None
         self.clf = None
-        self.test_x = None
-        self.test_y = None
-        self.predict_res = None
+        self.predict_x = None
+        self.predict_id = None
         self.vectorizer = None
 
     def make_train_data(self, params):
@@ -38,14 +37,15 @@ class SimplePerSongModel(Model):
     def make_predict_data(self, params):
         sql = "select * from " + self.feature_set.make(params, output_table=self.feature_set.name + "_predict")
         data = SQLClient.execute(sql)
-        self.test_x = [_[1:] for _ in data]
-        #self.test_y = [_[] for_ in data]
+        self.predict_x = [_[1:] for _ in data]
+        self.predict_id = [_[0] for _ in data]
 
     def predict(self):
         self.clf = joblib.load(self.feature_set.name + "/train_model.rf")
         #self.test_x = self.vectorizer.transform(self.test_x)
-        self.predict_res = self.clf.predict(self.test_x)
-        #print mean_squared_error(self.test_x, self.predict_res)
+        result = self.clf.predict(self.predict_x)
+        result = [(idx, int(score)) for idx, score in zip(self.predict_id, result)]
+        SQLClient.insert(self.predict_table_name, [("song_id", "char(48)"), ("predict", "decimal")], result)
 
 
 
