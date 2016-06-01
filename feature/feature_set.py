@@ -35,7 +35,7 @@ class SQLJoinFeatureSet(SQLFeatureSet):
         SQLFeatureSet.__init__(self, name, features, key)
         self.sub_feature_sets = sub_feature_sets
 
-    def make(self, params):
+    def make(self, params, output_table=None):
         input_tables = []
 
         def dfs(sub_feature_sets):
@@ -48,8 +48,10 @@ class SQLJoinFeatureSet(SQLFeatureSet):
                     input_tables.append(fs.make(params))
         dfs(self.sub_feature_sets)
 
-        SQLClient.simple_join(self.name, input_tables, self.key)
-        return self.name
+        if output_table is None:
+            output_table = self.name
+        SQLClient.simple_join(output_table, input_tables, self.key)
+        return output_table
 
 
 

@@ -89,7 +89,7 @@ SQLClient.create_table(
 
 # output phase with model averaging
 predicts = SQLClient.execute("SELECT * from tmp_per_model_predict")
-start_date = datetime(2015, 9, 1)
+start_date = date(2015, 9, 1)
 results = {}
 for predict in predicts:
     for days in range(1, 61):
