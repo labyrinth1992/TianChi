@@ -28,7 +28,7 @@ class SimplePerSongModel(Model):
     def train(self):
         self.vectorizer = DictVectorizer()
         #self.x = self.vectorizer.fit_transform(self.x)
-        self.clf = RandomForestRegressor(n_estimators=100, min_samples_leaf=2)
+        self.clf = RandomForestRegressor(n_estimators=200)
         self.clf.fit(self.x, self.y)
         if not os.path.exists(self.feature_set.name):
             os.mkdir(self.feature_set.name)
@@ -45,7 +45,7 @@ class SimplePerSongModel(Model):
         #self.test_x = self.vectorizer.transform(self.test_x)
         result = self.clf.predict(self.predict_x)
         result = [(idx, int(score)) for idx, score in zip(self.predict_id, result)]
-        SQLClient.insert(self.predict_table_name, [("song_id", "char(48)"), ("predict", "decimal")], result)
+        SQLClient.insert(self.predict_table_name, [("song_id", "char(48)"), ("predict", "decimal")], result, override=True)
 
 
 

@@ -11,9 +11,9 @@ from evaluation import evaluate
 
 
 # parameters
-#SQLClient.set_mode(True)
+SQLClient.set_mode(True)
 stage = 3
-for_online = False
+for_online = True#False
 if for_online:
     train_action_table = "user_actions_global_train"
     target_action_table = "user_actions_global_target"
@@ -23,8 +23,8 @@ if for_online:
     last_day = date(2015, 8, 30)
     train_last_day = date(2015, 6, 30)
 else:
-    train_action_table = "user_actions_local_train"
-    target_action_table = "user_actions_local_target"
+    train_action_table = "user_actions_global_train"
+    target_action_table = "user_actions_global_target"
     test_action_table = "user_actions_local_test"
     test_target_table = "artist_play_local"
     predict_table_prefix = "simple_per_song_local_predict"
@@ -106,7 +106,13 @@ if stage < 4:
             results[predict[0] + " " + str(cur_date).replace("-", "")] = result
 
     if for_online:
-        pass
+        to_insert = []
+        for key in results:
+            artist_id, day = key.split(" ")
+            to_insert.append( (artist_id, day, results[key]) )
+            SQLClient.insert("online_predictions",
+                [("artist_id", "char(48)"), ("ds", "char(48)"), ("predict", "int")],
+                to_insert, override=True)
     else:
         goldens = SQLClient.execute("SELECT * from " + test_target_table)
         to_eval = {}
@@ -116,4 +122,5 @@ if stage < 4:
                 continue
             to_eval[key] = (float(golden), results[key])
         to_eval = [(k.split(" ")[0], k.split(" ")[1], v[0], v[1]) for k, v in to_eval.items()]
+        to_eval.sort(key=lambda _:_[0])
         print evaluate(to_eval)

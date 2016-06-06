@@ -62,8 +62,11 @@ class SQLClient:
             print
 
     @staticmethod
-    def insert(name, schema, items):
+    def insert(name, schema, items, override=False):
         with SQLClient.get_db() as db:
+            exist = db.execute("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_NAME='%s'" % name) > 0
+            if override and exist:
+                db.execute("DROP TABLE %s" % name)
             cols = ",".join([n + " " + t for n, t in schema])
             db.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (name, cols))
             db.executemany("INSERT INTO %s (%s) VALUES (%s)" % (name, ",".join([n for n, _ in schema]), ",".join(["%s" for _ in schema])), 
