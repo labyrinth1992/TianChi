@@ -1,2 +1,4 @@
 *.pyc
 /.idea
+*.npy
+*.swp
